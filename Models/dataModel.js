@@ -1,4 +1,4 @@
-const mongoose = require("./dbConn")
+const dbConnection = require("./dbConn");
 
-
-module.exports = todoModel
+todoModel.sync({ alter: true, force: true });
+module.exports = todoModel;

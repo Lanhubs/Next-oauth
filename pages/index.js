@@ -11,16 +11,27 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [todo, setTodo] = useState("");
+  const [deleteTodo, setDeleteTodo] = useState();
   const [todos, setTodos] = useState([]);
   useEffect(() => {
-    /* fetch("/api/")
+    fetch("/api/")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
-        // setTodos(data.todos);
+        setTodos(data.docs)
       })
-      .catch((e) => console.log(e)); */
-  }, [todo, todos]);
+      .catch((e) => console.log(e));
+  }, [todo])
+  const deleteTodoHandler = (index) => {
+    fetch(`/api/addtodo/${index}`, {
+      method: "DELETE",
+     
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTodos(data.docs);
+      })
+      .catch((e) => console.log(e));
+  };
   const addTodo = () => {
     fetch("/api/addtodo/", {
       method: "POST",
@@ -31,8 +42,7 @@ export default function Home() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        // setTodos(data);
+        setTodos(data);
       })
       .catch((e) => console.log(e));
   };
@@ -44,7 +54,7 @@ export default function Home() {
       style={{ algnitems: "center", justifyContent: "center" }}
       bg="dark"
     >
-      <Box bg="orange" w="60%" h="60%" m="auto">
+      <Box bg="orange" w="60%" m="auto">
         <Flex
           spacing="sm"
           dir="horizontal"
@@ -65,14 +75,13 @@ export default function Home() {
           </Button>
         </Flex>
         <Stack w="90%" mx="auto">
-          {todos.length === 0 ? (
+          {todos?.length === 0 ? (
             <EmptyTodo />
           ) : (
             todos?.map((item) => {
               return (
                 <Box
                   display="flex"
-                  alignItem="center"
                   style={{ overflow: "hidden" }}
                   bg="#fff"
                   key={item._id}
@@ -81,7 +90,7 @@ export default function Home() {
                     {item.todo}
                   </Text>
 
-                  <Button>
+                  <Button onClick={() => deleteTodoHandler(item._id)}>
                     <IconTrash />
                   </Button>
                 </Box>
