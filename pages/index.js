@@ -1,112 +1,54 @@
-import { Box, Button, Center, Flex, Input, Stack, Text } from "@mantine/core";
+"use client";
 import {
-  IconAd,
-  IconPlus,
-  IconServicemark,
-  IconTallymark1,
-  IconTallymark3,
-  IconTrash,
-} from "@tabler/icons";
-import { useEffect, useState } from "react";
+  Box,
+  Button,
+  Image,
+  Center,
+  Flex,
+  Input,
+  Stack,
+  Text,
+} from "@mantine/core";
+import { useSession, signIn, signOut } from "next-auth/react";
 
-export default function Home() {
-  const [todo, setTodo] = useState("");
-  const [deleteTodo, setDeleteTodo] = useState();
-  const [todos, setTodos] = useState([]);
-  useEffect(() => {
-    fetch("/api/")
-      .then((res) => res.json())
-      .then((data) => {
-        setTodos(data.docs)
-      })
-      .catch((e) => console.log(e));
-  }, [todo])
-  const deleteTodoHandler = (index) => {
-    fetch(`/api/addtodo/${index}`, {
-      method: "DELETE",
-     
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setTodos(data.docs);
-      })
-      .catch((e) => console.log(e));
-  };
-  const addTodo = () => {
-    fetch("/api/addtodo/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ todo }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setTodos(data);
-      })
-      .catch((e) => console.log(e));
-  };
+import { IconBrandGoogle } from "@tabler/icons";
+
+export default function Home({}) {
+  const { data: session } = useSession();
+
   return (
     <Box
       w="100vw"
       h="100vh"
-      display="flex"
       style={{ algnitems: "center", justifyContent: "center" }}
       bg="dark"
     >
-      <Box bg="orange" w="60%" m="auto">
-        <Flex
-          spacing="sm"
-          dir="horizontal"
-          mx="auto"
-          my="1rem"
-          w="90%"
-          bg="grape"
-          style={{ overflow: "hidden" }}
-        >
-          <Input
-            placeholder="todo"
-            style={{ flex: 1 }}
-            onChange={(e) => setTodo(e.target.value)}
-          />
-          <Button onClick={addTodo}>
-            {" "}
-            Add todo <IconPlus />
-          </Button>
-        </Flex>
-        <Stack w="90%" mx="auto">
-          {todos?.length === 0 ? (
-            <EmptyTodo />
-          ) : (
-            todos?.map((item) => {
-              return (
-                <Box
-                  display="flex"
-                  style={{ overflow: "hidden" }}
-                  bg="#fff"
-                  key={item._id}
-                >
-                  <Text pl="10px" style={{ flex: 1 }}>
-                    {item.todo}
-                  </Text>
+      {session ? (
+        <>
+          <Text>Sign in your email {session.user?.email}</Text>
+          <Image width={70} height={30} src={session.user?.image} />
+          <Text>{session.user?.name}</Text>
+          <Text>{session?.expires}</Text>
 
-                  <Button onClick={() => deleteTodoHandler(item._id)}>
-                    <IconTrash />
-                  </Button>
-                </Box>
-              );
-            })
-          )}
-        </Stack>
-      </Box>
+          <Button onClick={() => signOut()}>
+            <IconBrandGoogle /> Sign in
+          </Button>
+        </>
+      ) : (
+        <>
+          <Text>You are not signed in</Text>
+          <Button onClick={() => signIn()}>
+            <IconBrandGoogle /> Sign in
+          </Button>
+        </>
+      )}
     </Box>
   );
 }
 
-const EmptyTodo = () => (
-  <Box bg="none" w="90%" h="full" style={{ flex: 1 }}>
-    <Text m="auto" fs={20} tt="capitalize">
-      you have not set any todo
-    </Text>
-  </Box>
-);
+/* Home.getInitialProps = async () => {
+  const { data } = useSession();
+  const {session}= data;
+  return { session  };
+};
+ */
